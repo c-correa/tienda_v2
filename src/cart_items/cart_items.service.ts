@@ -1,26 +1,31 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCartItemDto } from './dto/create-cart_item.dto';
 import { UpdateCartItemDto } from './dto/update-cart_item.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CartItem } from './entities/cart_item.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Product } from 'src/products/entities/product.entity';
+import { Repository } from 'typeorm';
 
+// cart-items.service.ts
 @Injectable()
 export class CartItemsService {
-  create(createCartItemDto: CreateCartItemDto) {
-    return 'This action adds a new cartItem';
-  }
+  constructor(
+    @InjectRepository(CartItem) private readonly cartRepo: Repository<CartItem>,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+    @InjectRepository(Product) private readonly productRepo: Repository<Product>,
+  ) {}
 
-  findAll() {
-    return `This action returns all cartItems`;
-  }
+  async create(dto: CreateCartItemDto) {
+    const user = await this.userRepo.findOne({ where: { id: dto.user_id } });
+    if (!user) throw new BadRequestException('Usuario no encontrado');
 
-  findOne(id: number) {
-    return `This action returns a #${id} cartItem`;
-  }
+    const product = await this.productRepo.findOne({ where: { id: dto.product_id } });
+    if (!product) throw new BadRequestException('Producto no encontrado');
 
-  update(id: number, updateCartItemDto: UpdateCartItemDto) {
-    return `This action updates a #${id} cartItem`;
-  }
+    if (dto.quantity > product.stock) throw new BadRequestException('Cantidad mayor al stock disponible');
 
-  remove(id: number) {
-    return `This action removes a #${id} cartItem`;
+    const cartItem = this.cartRepo.create({ ...dto, user, product });
+    return await this.cartRepo.save(cartItem);
   }
 }
