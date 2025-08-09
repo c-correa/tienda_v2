@@ -24,7 +24,7 @@ import { Category } from './categories/entities/category.entity';
       port: 5432,
       username: 'postgres',
       password: '123456789',
-      database: 'postgres',
+      database: 'tienda',
       entities: [User, CartItem, Product, Category,],
       synchronize: true,
     }),

@@ -13,7 +13,7 @@ export class AuthController {
     return this.authService.login(user);
   }
 
-  @Post('register')
+  @Post('register-student')
   async register(
     @Body() body: { email: string; password: string; role: Role },
   ) {
