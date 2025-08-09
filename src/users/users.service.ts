@@ -4,6 +4,7 @@ import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
+import { hashPassword } from 'src/uitls/bycrit';
 
 @Injectable()
 export class UsersService {
@@ -18,24 +19,16 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const { email, password } = createUserDto;
 
-    // Verificar si el email ya está en uso
     const userExists = await this.userRepository.findOne({ where: { email } });
     if (userExists) {
       throw new ConflictException('El correo ya está registrado');
     }
 
-    // Hashear la contraseña
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Crear y guardar el usuario
     const newUser = this.userRepository.create({
       email,
-      password: hashedPassword,
+      password
     });
 
     return await this.userRepository.save(newUser);
   }
-
-
-
 }
