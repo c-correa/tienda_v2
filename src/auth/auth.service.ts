@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
+import { comparePassword } from 'src/uitls/bycrit';
 
 @Injectable()
 export class AuthService {
@@ -12,11 +13,10 @@ export class AuthService {
 
   async validateUser(email: string, pass: string) {
     const user = await this.usersService.findByEmail(email);
+    console.log(user, pass);
+    
     if (!user) throw new UnauthorizedException('Usuario no encontrado');
-
-    const isMatch = await bcrypt.compare(pass, user.password);
-    if (!isMatch) throw new UnauthorizedException('Credenciales inválidas');
-
+    
     return user;
   }
 
@@ -24,6 +24,8 @@ export class AuthService {
     const payload = { email: user.email, sub: user.id, role: user.role };
     return {
       access_token: this.jwtService.sign(payload),
-    };
+      role: user.role,
+};
+
   }
 }
