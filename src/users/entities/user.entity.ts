@@ -10,7 +10,7 @@ import {
 
 export enum Role {
   ESTUDIANTE = 'estudiante',
-  PROFESOR = 'profesor',
+  ADMIN = 'admin',
 }
 
 @Entity({ name: 'users' })
@@ -18,7 +18,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ type: 'varchar', length: 100, nullable: true })
   first_name: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true })
